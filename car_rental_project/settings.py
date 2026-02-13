@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-=m#hqro=7#%#h2q!_q2q3q9#-81xh@z_j4z(s6@1=do_m0=#_o')
 
 # DEBUG est True en local, mais devient False sur Render
-DEBUG = 'RENDER' not in os.environ
+DEBUG = os.environ.get('RENDER_DEBUG', 'False') == 'True'
 
 # Autorise localhost et l'URL de ton futur site Render
 ALLOWED_HOSTS = ['*'] # Tu pourras restreindre à ['ton-app.onrender.com'] plus tard
