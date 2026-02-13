@@ -1,0 +1,318 @@
+{% extends "car_rental/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* --- Dynamisme & Micro-interactions --- */
+    .hover-lift {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(13, 110, 253, 0.15) !important;
+    }
+
+    /* Hero Section avec Image de Fond - Intensité diminuée */
+    .hero-section {
+        /* Opacité du dégradé augmentée à 0.9 pour atténuer l'image */
+        background: linear-gradient(135deg, rgba(13, 71, 161, 0.9) 0%, rgba(26, 35, 126, 0.9) 100%), 
+                    url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop') center center / cover no-repeat;
+        background-attachment: fixed; /* Effet parallaxe léger */
+        color: white;
+        padding: 100px 0;
+        border-radius: 0 0 50px 50px;
+        position: relative;
+    }
+
+    /* Amélioration de la Barre de Recherche */
+    .search-bar-section {
+        margin-top: -60px;
+        position: relative;
+        z-index: 100;
+    }
+    .search-container {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        border: 1px solid rgba(13, 110, 253, 0.1);
+    }
+    .input-group-custom {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 5px 15px;
+        border: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    .input-group-custom:focus-within {
+        background: white;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+    }
+    .input-group-custom input, .input-group-custom select {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        padding: 10px;
+        width: 100%;
+    }
+    .input-group-custom input:focus, .input-group-custom select:focus {
+        outline: none;
+    }
+    .btn-search {
+        background: #0d6efd;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-search:hover {
+        background: #0b5ed7;
+        transform: scale(1.02);
+    }
+
+    /* Cartes Voitures */
+    .car-card {
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .car-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 200px;
+    }
+    .car-img-wrapper img {
+        transition: transform 0.5s ease;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .car-card:hover .car-img-wrapper img {
+        transform: scale(1.1);
+    }
+    .price-tag {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #0d6efd;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    /* Carousel Nav */
+    .carousel-control-prev, .carousel-control-next {
+        width: 45px; height: 45px;
+        background: #0d6efd;
+        border-radius: 50%;
+        top: 50%; transform: translateY(-50%);
+        border: 4px solid white;
+        opacity: 1;
+    }
+
+    /* Why Choose Us Section - Cards */
+    .feature-card-item {
+        background-color: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+    .feature-card-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        border-color: #0d6efd;
+    }
+    .feature-card-item .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px auto;
+        font-size: 2.5rem;
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.1);
+        transition: all 0.3s ease;
+    }
+    .feature-card-item:hover .icon-wrapper {
+        background-color: #0d6efd;
+        color: white;
+        transform: scale(1.1);
+    }
+    .feature-card-item h5 {
+        font-weight: bold;
+        color: #212529;
+        margin-bottom: 10px;
+    }
+    .feature-card-item p {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    /* Image noir et blanc pour la section About Us */
+    .greyscale-image {
+        filter: grayscale(100%);
+        transition: filter 0.5s ease;
+    }
+    .greyscale-image:hover {
+        filter: grayscale(0%);
+    }
+</style>
+
+<section class="hero-section text-center">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold mb-3 animate__animated animate__fadeInDown">
+            Libérez votre <span class="text-warning">Chemin</span>
+        </h1>
+        <p class="lead fw-normal mb-4 px-lg-5">
+            La simplicité d'une location, le prestige d'une expérience inoubliable.
+        </p>
+    </div>
+</section>
+
+<section class="search-bar-section">
+    <div class="container">
+        <div class="search-container animate__animated animate__fadeInUp">
+            <form action="{% url 'car_list' %}" method="GET" class="row g-3">
+                <div class="col-lg-5 col-md-6">
+                    <label class="small fw-bold text-muted mb-2 ms-1">QUELLE VOITURE ?</label>
+                    <div class="input-group-custom d-flex align-items-center">
+                        <i class="fas fa-search text-primary me-2"></i>
+                        <input type="text" name="search" class="form-control" placeholder="BMW, Mercedes, Audi...">
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <label class="small fw-bold text-muted mb-2 ms-1">CATÉGORIE</label>
+                    <div class="input-group-custom d-flex align-items-center">
+                        <i class="fas fa-filter text-primary me-2"></i>
+                        <select name="category" class="form-select">
+                            <option value="">Tous les styles</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.name }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-12 d-grid">
+                    <label class="invisible mb-2">Rechercher</label>
+                    <button type="submit" class="btn btn-primary btn-search shadow-sm text-white py-3">
+                        Trouver un véhicule <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 mt-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <h6 class="text-primary fw-bold text-uppercase mb-1">Notre sélection</h6>
+                <h2 class="fw-bold mb-0">Véhicules <span class="text-primary">Vedettes</span></h2>
+            </div>
+            <a href="{% url 'car_list' %}" class="btn btn-outline-primary rounded-pill px-4 hover-lift">Voir tout</a>
+        </div>
+
+        <div id="carCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row g-4 justify-content-center">
+                        {% for car in featured_cars %}
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <div class="card car-card hover-lift h-100">
+                                <div class="car-img-wrapper">
+                                    {% if car.image %}
+                                        <img src="{{ car.image.url }}" alt="{{ car.brand }} {{ car.model }}">
+                                    {% endif %}
+                                    <div class="price-tag">{{ car.price_per_day }} DT/j</div>
+                                </div>
+                                <div class="card-body p-4 text-center">
+                                    <h5 class="fw-bold">{{ car.brand }} {{ car.model }}</h5>
+                                    <p class="text-muted small mb-3">{{ car.category.name }} • {{ car.get_transmission_display }}</p>
+                                    <a href="{% url 'car_detail' car.pk %}" class="btn btn-dark w-100 rounded-pill">Réserver</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% if forloop.counter|divisibleby:3 and not forloop.last %}
+                            </div></div><div class="carousel-item"><div class="row g-4 justify-content-center">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=1000" class="img-fluid rounded-4 shadow-lg hover-lift greyscale-image" alt="Expérience de conduite">
+            </div>
+            <div class="col-lg-6 ps-lg-5">
+                <h2 class="display-6 fw-bold mb-4">Votre liberté est notre <span class="text-primary">priorité</span>.</h2>
+                <p class="text-muted mb-4">BossCar Location redéfinit la mobilité en Tunisie avec un service premium et une assistance continue.</p>
+                <div class="d-flex gap-3 mb-4">
+                    <div class="p-3 bg-white rounded-3 shadow-sm border-start border-primary border-4 w-50">
+                        <h4 class="fw-bold mb-0">5+</h4>
+                        <small class="text-muted">Ans d'expertise</small>
+                    </div>
+                    <div class="p-3 bg-white rounded-3 shadow-sm border-start border-success border-4 w-50">
+                        <h4 class="fw-bold mb-0">24/7</h4>
+                        <small class="text-muted">Assistance Pro</small>
+                    </div>
+                </div>
+                <a href="{% url 'about' %}" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">En savoir plus <i class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h6 class="text-primary fw-bold text-uppercase mb-3">Nos valeurs</h6>
+            <h2 class="display-6">Pourquoi nous <span class="text-primary">choisir</span> ?</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card-item hover-lift">
+                    <div class="icon-wrapper"><i class="fas fa-handshake"></i></div>
+                    <h5>Confiance & Transparence</h5>
+                    <p>Aucun frais caché, des contrats clairs et une communication honnête.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card-item hover-lift">
+                    <div class="icon-wrapper"><i class="fas fa-leaf"></i></div>
+                    <h5>Engagement Éco-responsable</h5>
+                    <p>Une flotte moderne pour un futur plus vert.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card-item hover-lift">
+                    <div class="icon-wrapper"><i class="fas fa-medal"></i></div>
+                    <h5>Qualité & Sécurité</h5>
+                    <p>Des véhicules rigoureusement entretenus pour votre sérénité.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+```http://googleusercontent.com/image_generation_content/6

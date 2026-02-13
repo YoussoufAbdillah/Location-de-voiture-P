@@ -1,0 +1,13 @@
+{% extends "car_rental/base.html" %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="alert alert-success p-5 shadow">
+        <h1 class="display-4">Merci pour la reservation</h1>
+        <p class="lead">Votre réservation pour la <strong>{{ booking.car.brand }} {{ booking.car.model }}</strong> a été enregistrée.</p>
+        <hr>
+        <p>Montant total : <strong>{{ booking.total_price }}DT</strong></p>
+        <a href="{% url 'my_bookings' %}" class="btn btn-outline-success">Consuter la réservation</a>
+    </div>
+</div>
+{% endblock %}

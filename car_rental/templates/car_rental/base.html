@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BossCarLocation | Location de voiture{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        :root { --primary-color: #0d6efd; }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f8f9fa; 
+            scroll-behavior: smooth; 
+        }
+
+        /* --- Navbar Fixe & Prioritaire --- */
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            background-color: rgba(17, 16, 16, 0.95) !important;
+            z-index: 2000 !important;
+        }
+
+        .nav-link:hover { color: var(--primary-color) !important; }
+
+        /* --- Footer Compact --- */
+        .footer-section {
+            background-color: #111;
+            color: #ccc;
+            font-size: 0.85rem; /* Taille réduite */
+            padding-top: 40px;
+            padding-bottom: 20px;
+        }
+        .footer-title {
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .footer-link {
+            transition: 0.2s;
+            text-decoration: none;
+            color: #888 !important;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .footer-link:hover {
+            color: var(--primary-color) !important;
+            transform: translateX(3px);
+        }
+        .social-btn {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            color: #ccc;
+            border-radius: 50%;
+            transition: 0.3s;
+            margin-right: 8px;
+        }
+        .social-btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+        .contact-info i { width: 20px; color: var(--primary-color); }
+        hr.light { border-top: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+   <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <div class="bg-primary text-white rounded-3 p-2 me-2 shadow-sm">
+                <i class="fas fa-car-side fa-lg"></i>
+            </div>
+            <span class="fw-bold fs-4">BossCar<span class="text-primary">Location</span></span>
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link fw-medium px-3 text-light" href="{% url 'home' %}">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link fw-medium px-3 text-light" href="{% url 'car_list' %}">Catalogue</a></li>
+                <li class="nav-item"><a class="nav-link fw-medium px-3 text-light" href="{% url 'about' %}" >À propos</a></li>
+            </ul>
+
+            <div class="navbar-nav align-items-center">
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a class="nav-link d-flex align-items-center bg-white bg-opacity-10 rounded-pill p-1 pe-3 border border-white border-opacity-10" 
+                           href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                <i class="fas fa-user small"></i>
+                            </div>
+                            <span class="small fw-bold text-light">{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end mt-3 animate__animated animate__fadeInUp shadow-lg border-0">
+                            <li><a class="dropdown-item py-2" href="{% url 'my_bookings' %}"><i class="fas fa-calendar-check me-2 text-primary"></i>Mes réservations</a></li>
+                            {% if user.is_staff %}
+                                <li><a class="dropdown-item py-2" href="{% url 'admin:index' %}"><i class="fas fa-user-shield me-2 text-danger"></i>Admin Panel</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="px-2">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">Déconnexion</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-link text-decoration-none text-light fw-bold me-2">Connexion</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">S'inscrire</a>
+                {% endif %}
+            </div>
+          </div>
+       </div>
+   </nav>
+
+    <main style="min-height: 80vh;">
+        <div class="container mt-3">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+
+   <footer class="footer-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h5 class="footer-title text-primary">BossCar Location</h5>
+                <p class="mb-4">Votre partenaire de confiance pour la location de véhicules premium en Tunisie. Qualité, sécurité et service client irréprochable.</p>
+                <div class="d-flex">
+                    <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4">
+                <h5 class="footer-title">Navigation</h5>
+                <a href="{% url 'home' %}" class="footer-link">Accueil</a>
+                <a href="{% url 'car_list' %}" class="footer-link">Notre Flotte</a>
+                <a href="{% url 'about' %}" class="footer-link">À propos</a>
+                <a href="#" class="footer-link">Conditions</a>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <h5 class="footer-title">Contact</h5>
+                <div class="contact-info">
+                    <p class="mb-2 small"><i class="fas fa-map-marker-alt"></i> Les Berges du Lac 2, Tunis</p>
+                    <p class="mb-2 small"><i class="fas fa-phone"></i> +216 71 888 999</p>
+                    <p class="mb-2 small"><i class="fas fa-envelope"></i> contact@bosscar.tn</p>
+                    <p class="mb-2 small"><i class="far fa-clock"></i> 24h/7j pour l'assistance</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-4">
+                <h5 class="footer-title">Newsletter</h5>
+                <p class="small mb-3">Inscrivez-vous pour nos offres exclusives.</p>
+                <div class="input-group input-group-sm">
+                    <input type="email" class="form-control bg-dark border-secondary text-white" placeholder="Email">
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="mt-3 opacity-50">
+                    <i class="fab fa-cc-visa fa-lg me-2"></i>
+                    <i class="fab fa-cc-mastercard fa-lg me-2"></i>
+                </div>
+            </div>
+        </div>
+
+        <hr class="light mt-5 mb-4">
+
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 small opacity-50">© 2026 BossCarLocation Tunisie. Tous droits réservés.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0 small opacity-50">Sécurité & Confidentialité | Mentions légales</p>
+            </div>
+        </div>
+    </div>
+   </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(a => new bootstrap.Alert(a).close());
+        }, 5000);
+    </script>
+</body>
+</html>

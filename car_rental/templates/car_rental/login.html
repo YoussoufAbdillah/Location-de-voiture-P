@@ -1,0 +1,107 @@
+{% extends "car_rental/base.html" %}
+
+{% block title %}Connexion | BossCarLocation{% endblock %}
+
+{% block content %}
+<style>
+    .auth-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+    .auth-card {
+        border-radius: 25px;
+        background: #ffffff;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+        overflow: hidden;
+    }
+    .auth-header {
+        background: linear-gradient(45deg, var(--primary-color), #0056b3);
+        padding: 40px;
+        color: white;
+        text-align: center;
+    }
+    .auth-header i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+    /* Style pour transformer le form.as_p en quelque chose de propre */
+    form p {
+        margin-bottom: 1.5rem;
+    }
+    form input {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 12px;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    form input:focus {
+        border-color: var(--primary-color);
+        background-color: #fff;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+    form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        letter-spacing: 0.5px;
+    }
+</style>
+
+<div class="container auth-container">
+    <div class="row justify-content-center w-100">
+        <div class="col-lg-5 col-md-7">
+            <div class="card auth-card border-0 animate__animated animate__zoomIn">
+                <div class="auth-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h2 class="fw-bold mb-0">Bon retour !</h2>
+                    <p class="small mb-0 opacity-75">Connectez-vous pour gérer vos réservations</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    {% if form.errors %}
+                        <div class="alert alert-danger border-0 rounded-4 small animate__animated animate__shakeX">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Identifiants incorrects.
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            {{ form.as_p }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow fw-bold py-3 mb-3">
+                            Se connecter
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Pas encore de compte ? 
+                            <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">Inscrivez-vous ici</a>
+                        </p>
+                        <hr class="opacity-10">
+                        <a href="{% url 'home' %}" class="text-muted small text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

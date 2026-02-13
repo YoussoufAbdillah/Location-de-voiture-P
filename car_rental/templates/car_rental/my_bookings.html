@@ -1,0 +1,175 @@
+{% extends "car_rental/base.html" %}
+
+{% block title %}Mes Réservations | BossCarLocation{% endblock %}
+
+{% block content %}
+<style>
+    /* Style pour les cartes de réservation */
+    .booking-card {
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+        background: #fff;
+        overflow: hidden;
+    }
+    .booking-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.06) !important;
+    }
+    
+    /* Image de la voiture en miniature */
+    .car-thumb {
+        width: 100px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .history-card {
+        background: #fcfcfc;
+        border-color: #f1f1f1;
+    }
+    .history-card img {
+        filter: grayscale(0.5);
+        opacity: 0.7;
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .nav-pills .nav-link {
+        color: #666;
+        font-weight: 600;
+        border-radius: 50px;
+        padding: 10px 25px;
+        border: 1px solid transparent;
+    }
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+    }
+</style>
+
+<div class="container mt-4 pb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Mon Espace Location</h2>
+        <p class="text-muted small">Retrouvez les détails de vos réservations et votre historique.</p>
+    </div>
+
+    <ul class="nav nav-pills justify-content-center mb-5 gap-2" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="pills-active-tab" data-bs-toggle="pill" data-bs-target="#pills-active" type="button">
+                <i class="fas fa-calendar-check me-2"></i>Réservations actives
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="pills-history-tab" data-bs-toggle="pill" data-bs-target="#pills-history" type="button">
+                <i class="fas fa-history me-2"></i>Historique & Annulations
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        
+        <div class="tab-pane fade show active" id="pills-active" role="tabpanel">
+            <div class="row g-3">
+                {% for booking in bookings %}
+                    {% if booking.status != 'Cancelled' %}
+                    <div class="col-12 animate__animated animate__fadeInUp">
+                        <div class="card booking-card shadow-sm border-0 p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-4 text-center">
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.model }}" class="car-thumb shadow-sm">
+                                </div>
+                                
+                                <div class="col-md-3 col-8">
+                                    <h6 class="fw-bold mb-0 text-dark">{{ booking.car.brand }} {{ booking.car.model }}</h6>
+                                    <span class="text-primary fw-bold small">{{ booking.total_price }} DT</span>
+                                </div>
+
+                                <div class="col-md-3 col-6 mt-3 mt-md-0">
+                                    <div class="d-flex align-items-center justify-content-md-center">
+                                        <i class="far fa-calendar-alt text-muted me-2"></i>
+                                        <div class="small">
+                                            <strong>{{ booking.start_date|date:"d/m" }}</strong> au <strong>{{ booking.end_date|date:"d/m" }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 col-6 mt-3 mt-md-0 text-center">
+                                    {% if booking.status == 'Confirmed' %}
+                                        <span class="status-badge bg-success bg-opacity-10 text-success">Confirmée</span>
+                                    {% else %}
+                                        <span class="status-badge bg-warning bg-opacity-10 text-warning">En attente</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-2 col-12 mt-3 mt-md-0 text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{% url 'edit_booking' booking.id %}" class="btn btn-sm btn-light border rounded-pill px-3" title="Modifier">
+                                            <i class="fas fa-edit text-primary"></i>
+                                        </a>
+                                        <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Annuler cette réservation ?')">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-car-side fa-3x text-light mb-3"></i>
+                        <p class="text-muted">Vous n'avez aucune réservation en cours.</p>
+                        <a href="{% url 'car_list' %}" class="btn btn-primary btn-sm rounded-pill">Louer une voiture</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="pills-history" role="tabpanel">
+            <div class="row g-3">
+                {% for booking in bookings %}
+                    {% if booking.status == 'Cancelled' %}
+                    <div class="col-12">
+                        <div class="card booking-card history-card shadow-sm border-0 p-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-4 text-center">
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.model }}" class="car-thumb">
+                                </div>
+                                <div class="col-md-3 col-8">
+                                    <h6 class="fw-bold mb-0 text-muted">{{ booking.car.brand }} {{ booking.car.model }}</h6>
+                                    <small class="text-muted">Annulée</small>
+                                </div>
+                                <div class="col-md-3 col-6 text-md-center">
+                                    <small class="text-muted"><i class="fas fa-history me-1"></i> Fin le {{ booking.end_date|date:"d M Y" }}</small>
+                                </div>
+                                <div class="col-md-2 col-6 text-center">
+                                    <span class="status-badge bg-secondary bg-opacity-10 text-secondary">Annulée</span>
+                                </div>
+                                <div class="col-md-2 col-12 text-end">
+                                    <a href="{% url 'delete_booking' booking.id %}" class="btn btn-sm btn-outline-secondary border-0" onclick="return confirm('Supprimer définitivement ?')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="text-center py-5 text-muted small">
+                        Aucun historique disponible.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

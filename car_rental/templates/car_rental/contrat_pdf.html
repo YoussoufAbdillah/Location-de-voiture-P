@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.4; }
+        .header { text-align: center; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { color: #0d6efd; margin-bottom: 5px; text-transform: uppercase; }
+        
+        .section { margin: 15px 0; }
+        .section-title { 
+            background: #f8f9fa; 
+            padding: 8px; 
+            font-weight: bold; 
+            border-left: 5px solid #0d6efd; 
+            margin-bottom: 10px; 
+        }
+
+        .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table th, .table td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        .table th { background-color: #fcfcfc; width: 35%; color: #666; }
+
+        .highlight { font-weight: bold; color: #000; }
+        
+        .total-container { 
+            margin-top: 30px; 
+            padding: 15px; 
+            border: 2px solid #28a745; 
+            border-radius: 8px;
+            text-align: right; 
+        }
+        .total-label { font-size: 14px; color: #555; }
+        .total-amount { font-size: 22px; font-weight: bold; color: #28a745; }
+        .payment-method { font-size: 12px; color: #28a745; font-style: italic; margin-top: 5px; }
+
+        .footer { margin-top: 40px; font-size: 10px; text-align: center; color: #999; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CONTRAT DE LOCATION</h1>
+        <p><strong>DriveRent</strong> - Agence de Location Premium</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">INFORMATIONS GÉNÉRALES</div>
+        <p><strong>N° Réservation :</strong> #DRV-{{ booking.id }}</p>
+        <p><strong>Date d'émission :</strong> {{ today|date:"d/m/Y à H:i" }}</p>
+        <p><strong>Client :</strong> {{ booking.user.first_name }} {{ booking.user.last_name }} (@{{ booking.user.username }})</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">DÉTAILS DU VÉHICULE</div>
+        <table class="table">
+            <tr>
+                <th>Véhicule</th>
+                <td class="highlight">{{ booking.car.brand }} {{ booking.car.model }}</td>
+            </tr>
+            <tr>
+                <th>Catégorie / Carburant</th>
+                <td>{{ booking.car.category.name }} / {{ booking.car.get_fuel_type_display }}</td>
+            </tr>
+            <tr>
+                <th>Transmission</th>
+                <td>{{ booking.car.get_transmission_display }}</td>
+            </tr>
+            <tr>
+                <th>Configuration</th>
+                <td>{{ booking.car.seats }} Places / {{ booking.car.doors }} Portes</td>
+            </tr>
+            <tr>
+                <th>Mode de paiement</th>
+                <td class="highlight">{{ booking.get_payment_method_display }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PÉRIODE DE LOCATION</div>
+        <table class="table">
+            <tr>
+                <th>Date et Heure de départ</th>
+                <td class="highlight">{{ booking.start_date|date:"d/m/Y à H:i" }}</td>
+            </tr>
+            <tr>
+                <th>Date et Heure de retour</th>
+                <td class="highlight">{{ booking.end_date|date:"d/m/Y à H:i" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="total-container">
+        <span class="total-label">MONTANT TOTAL À RÉGLER :</span><br>
+        <span class="total-amount">{{ booking.total_price }} DT</span>
+        <div class="payment-method">
+            Règlement par : {{ booking.get_payment_method_display }}
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Ce document sert de preuve de réservation officielle. Veuillez le présenter lors du retrait du véhicule.<br>
+        DriveRent S.A. - Tous droits réservés 2026</p>
+    </div>
+</body>
+</html>

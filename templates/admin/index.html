@@ -1,0 +1,133 @@
+{% extends "admin/index.html" %}
+{% load i18n static car_rental_tags log %}
+
+{% block content %}
+<style>
+    #content-main { width: 100% !important; max-width: 100% !important; overflow-x: hidden !important; padding: 0 15px !important; }
+    .col-lg-3.col-12, .timeline, #content-related { display: none !important; }
+    .col-lg-9.col-12 { flex: 0 0 100% !important; max-width: 100% !important; }
+
+    /* Style des Notifications */
+    .notification-banner {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 20px; border-radius: 6px; margin-bottom: 10px;
+        animation: slideIn 0.5s ease-out; border-left: 5px solid;
+    }
+    @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Actions Récentes */
+    .card-recent { flex: 0 0 220px; background: white; padding: 15px; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .border-add { border-top: 4px solid #28a745 !important; }
+    .border-change { border-top: 4px solid #ffc107 !important; }
+    .border-delete { border-top: 4px solid #dc3545 !important; }
+
+    /* Raccourcis */
+    .btn-quick {
+        display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+        background: white; border: 1px solid #ddd; border-radius: 6px;
+        color: #333 !important; font-weight: 500; transition: 0.2s; text-decoration: none !important;
+    }
+    .btn-quick:hover { background: #f8f9fa; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+</style>
+
+<div id="content-main">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <div id="notification-container" class="mb-4">
+        {% get_active_rentals as active_count %}
+        {% get_overdue_rentals as overdue_count %}
+        
+        {% if overdue_count > 0 %}
+        <div class="notification-banner" id="notif-urgent" style="background: #f8d7da; border-color: #dc3545; color: #721c24;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+                <span><strong>URGENT :</strong> {{ overdue_count }} véhicule(s) en retard de restitution !</span>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <a href="/admin/car_rental/booking/?status__exact=Active" style="color: #721c24; font-weight: bold; text-decoration: underline;">Voir les retards</a>
+                <button onclick="document.getElementById('notif-urgent').style.display='none'" style="background:none; border:none; cursor:pointer; color:#721c24; font-size: 1.2rem;">&times;</button>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if active_count > 0 %}
+        <div class="notification-banner auto-hide" id="notif-1" style="background: #fff3cd; border-color: #ffc107; color: #856404;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-info-circle"></i>
+                <span><strong>Activité :</strong> {{ active_count }} véhicule(s) sont actuellement loués.</span>
+            </div>
+            <button onclick="document.getElementById('notif-1').style.display='none'" style="background:none; border:none; cursor:pointer; color:#856404;">&times;</button>
+        </div>
+        {% endif %}
+
+        <div class="notification-banner auto-hide" id="notif-2" style="background: #d1ecf1; border-color: #0c5460; color: #0c5460;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-tools"></i>
+                <span><strong>Rappel :</strong> Vérifiez le niveau d'huile et la pression des pneus au retour.</span>
+            </div>
+            <button onclick="document.getElementById('notif-2').style.display='none'" style="background:none; border:none; cursor:pointer; color:#0c5460;">&times;</button>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+        <div style="flex: 1; min-width: 180px; background: #28a745; color: white; padding: 20px; border-radius: 10px; position: relative;">
+            <div style="font-size: 0.75rem; font-weight: bold; opacity: 0.9;">REVENUS TOTAL</div>
+            <div style="font-size: 1.4rem; font-weight: bold;">{% get_total_revenue %} DT</div>
+            <i class="fas fa-hand-holding-usd" style="position: absolute; right: 12px; bottom: 12px; opacity: 0.3;"></i>
+        </div>
+        <div style="flex: 1; min-width: 180px; background: #e67e22; color: white; padding: 20px; border-radius: 10px; position: relative;">
+            <div style="font-size: 0.75rem; font-weight: bold; opacity: 0.9;">VOITURES LOUÉES</div>
+            <div style="font-size: 1.4rem; font-weight: bold;">{{ active_count }}</div>
+            <i class="fas fa-key" style="position: absolute; right: 12px; bottom: 12px; opacity: 0.3;"></i>
+        </div>
+        <div style="flex: 1; min-width: 180px; background: #007bff; color: white; padding: 20px; border-radius: 10px; position: relative;">
+            <div style="font-size: 0.75rem; font-weight: bold; opacity: 0.9;">CONTRATS ACTIFS</div>
+            <div style="font-size: 1.4rem; font-weight: bold;">{{ active_count }}</div>
+            <i class="fas fa-file-contract" style="position: absolute; right: 12px; bottom: 12px; opacity: 0.3;"></i>
+        </div>
+        <div style="flex: 1; min-width: 180px; background: #343a40; color: white; padding: 20px; border-radius: 10px; position: relative;">
+            <div style="font-size: 0.75rem; font-weight: bold; opacity: 0.9;">PARC TOTAL</div>
+            <div style="font-size: 1.4rem; font-weight: bold;">{% get_total_cars %}</div>
+            <i class="fas fa-car" style="position: absolute; right: 12px; bottom: 12px; opacity: 0.3;"></i>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 35px;">
+        <a href="/admin/car_rental/car/add/" class="btn-quick"><i class="fas fa-plus text-success"></i> Voiture</a>
+        <a href="/admin/car_rental/booking/add/" class="btn-quick"><i class="fas fa-plus text-primary"></i> Contrat</a>
+        <a href="/admin/car_rental/booking/" class="btn-quick"><i class="fas fa-list"></i> Gérer</a>
+    </div>
+
+    <div style="margin-bottom: 40px; width: 100%;">{{ block.super }}</div>
+
+    <div style="background: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 10px; margin-top: 20px;">
+        <h4 style="font-weight: bold; color: #495057; margin-bottom: 15px; font-size: 0.9rem;"><i class="fas fa-history me-2 text-primary"></i> HISTORIQUE</h4>
+        <div style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px;">
+            {% get_admin_log 8 as admin_log for_user user %}
+            {% for entry in admin_log %}
+            <div class="card-recent {% if entry.is_addition %}border-add{% elif entry.is_change %}border-change{% else %}border-delete{% endif %}">
+                <div style="font-size: 0.85rem; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ entry.object_repr }}</div>
+                <div style="font-size: 0.7rem; color: #888; margin-top: 3px;">{{ entry.content_type.name|capfirst }}</div>
+                <div style="font-size: 0.7rem; margin-top: 8px; font-weight: bold;">
+                    {% if entry.is_addition %}<span style="color: #28a745;">Ajouté</span>
+                    {% elif entry.is_change %}<span style="color: #ffc107;">Modifié</span>
+                    {% else %}<span style="color: #dc3545;">Supprimé</span>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Seules les notifications avec la classe 'auto-hide' disparaissent
+    setTimeout(function() {
+        let notifs = document.getElementsByClassName('auto-hide');
+        for(let n of notifs) {
+            n.style.transition = "opacity 1s";
+            n.style.opacity = "0";
+            setTimeout(() => n.style.display = "none", 1000);
+        }
+    }, 10000); 
+</script>
+{% endblock %}

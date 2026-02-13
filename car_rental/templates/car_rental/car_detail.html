@@ -1,0 +1,212 @@
+{% extends "car_rental/base.html" %}
+
+{% block content %}
+<style>
+    .car-image-container {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    }
+    
+    .sticky-sidebar {
+        position: sticky;
+        top: 100px; 
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .spec-item {
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        border-radius: 16px;
+        padding: 15px;
+    }
+    
+    .price-tag {
+        background: linear-gradient(45deg, var(--primary-color), #0056b3);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 15px;
+    }
+
+    .availability-box {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 20px;
+        padding: 20px;
+    }
+</style>
+
+<div class="container mt-4 py-4">
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <div class="car-image-container mb-4">
+                <img src="{{ car.image.url }}" class="img-fluid" style="height: 450px; width: 100%; object-fit: cover;">
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="fw-bold mb-1 display-5">{{ car.brand }} <span class="text-primary">{{ car.model }}</span></h1>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                            <i class="fas fa-tag me-1"></i> {{ car.category.name }}
+                        </span>
+                        <span class="badge bg-dark bg-opacity-10 text-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-car-side me-1"></i> {{ car.doors }} Portes
+                        </span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="price-tag">
+                        <h2 class="fw-bold mb-0 fs-3">{{ car.price_per_day }} DT</h2>
+                        <small class="opacity-75">par jour</small>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-3 mt-5">Spécifications techniques</h5>
+            <div class="row g-3 text-center mb-5">
+                <div class="col-6 col-md-3">
+                    <div class="spec-item h-100">
+                        <i class="fas fa-cog text-primary mb-2 fs-4"></i>
+                        <p class="small text-muted mb-1">Boîte</p>
+                        <p class="small fw-bold mb-0">{{ car.get_transmission_display }}</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="spec-item h-100">
+                        <i class="fas fa-gas-pump text-primary mb-2 fs-4"></i>
+                        <p class="small text-muted mb-1">Énergie</p>
+                        <p class="small fw-bold mb-0">{{ car.get_fuel_type_display }}</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="spec-item h-100">
+                        <i class="fas fa-users text-primary mb-2 fs-4"></i>
+                        <p class="small text-muted mb-1">Capacité</p>
+                        <p class="small fw-bold mb-0">{{ car.seats }} Places</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="spec-item h-100">
+                        <i class="fas fa-snowflake text-primary mb-2 fs-4"></i>
+                        <p class="small text-muted mb-1">Clim</p>
+                        <p class="small fw-bold mb-0">Oui</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="sticky-sidebar">
+                
+                <div class="card border-0 shadow-lg rounded-4 p-4">
+                    <h4 class="fw-bold mb-4 text-dark"><i class="fas fa-key text-primary me-2"></i>Réserver</h4>
+                    
+                    {% if user.is_authenticated %}
+                        <form method="POST" id="booking-form">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">DÉPART</label>
+                                <div class="input-group bg-light rounded-3 border">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-calendar-plus text-muted"></i></span>
+                                    <input type="datetime-local" name="start_date" id="id_start_date" class="form-control bg-light border-0 ps-0 small" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">RETOUR</label>
+                                <div class="input-group bg-light rounded-3 border">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-calendar-check text-muted"></i></span>
+                                    <input type="datetime-local" name="end_date" id="id_end_date" class="form-control bg-light border-0 ps-0 small" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted">MODE DE PAIEMENT</label>
+                                {{ form.payment_method }}
+                            </div>
+
+                            <div id="price-summary" class="bg-primary bg-opacity-10 p-3 rounded-3 mb-4 d-none border border-primary border-opacity-10">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted small">Durée :</span>
+                                    <span id="duration-days" class="fw-bold text-dark small">0 jour</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold mb-0 text-dark">Total :</span>
+                                    <span id="total-price-display" class="h5 fw-bold text-primary mb-0">0 DT</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm py-3 fw-bold">
+                                CONFIRMER
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-lock fa-3x text-muted mb-3 opacity-25"></i>
+                            <h5 class="fw-bold">Connexion requise</h5>
+                            <p class="text-muted small mb-4">Veuillez vous connecter pour réserver ce véhicule.</p>
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary w-100 rounded-pill fw-bold">
+                                Se connecter
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="availability-box shadow-sm">
+                    <h6 class="fw-bold mb-3 text-dark small">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>DATES DÉJÀ RÉSERVÉES
+                    </h6>
+                    <div class="list-group list-group-flush overflow-auto" style="max-height: 180px;">
+                        {% for b in car.booking_set.all %}
+                            {% if b.status != 'Cancelled' %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-2 border-light">
+                                <span class="small text-danger fw-medium"><i class="fas fa-lock me-2"></i>Indisponible</span>
+                                <span class="small fw-bold text-dark">{{ b.start_date|date:"d M" }} — {{ b.end_date|date:"d M" }}</span>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                            <p class="text-center text-success small fw-bold mb-0 py-2">Libre immédiatement</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('id_start_date');
+        const endDateInput = document.getElementById('id_end_date');
+        const pricePerDay = parseFloat("{{ car.price_per_day }}");
+        const priceSummary = document.getElementById('price-summary');
+        
+        // Bloquer les dates passées
+        const now = new Date().toISOString().slice(0, 16);
+        if(startDateInput) {
+            startDateInput.min = now;
+            endDateInput.min = now;
+        }
+
+        function calculatePrice() {
+            const start = new Date(startDateInput.value);
+            const end = new Date(endDateInput.value);
+            if (end > start) {
+                const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                priceSummary.classList.remove('d-none');
+                document.getElementById('duration-days').innerText = diffDays + " jour(s)";
+                document.getElementById('total-price-display').innerText = (diffDays * pricePerDay) + " DT";
+            } else {
+                priceSummary.classList.add('d-none');
+            }
+        }
+
+        if(startDateInput) {
+            startDateInput.addEventListener('change', calculatePrice);
+            endDateInput.addEventListener('change', calculatePrice);
+        }
+    });
+</script>
+{% endblock %}

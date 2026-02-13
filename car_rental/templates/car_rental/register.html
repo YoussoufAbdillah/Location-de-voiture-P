@@ -1,0 +1,144 @@
+{% extends "car_rental/base.html" %}
+
+{% block content %}
+<style>
+    .register-container {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                    url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1983');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .register-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .form-label {
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+    /* Style personnalisé pour les champs Django */
+    .register-card input {
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        border: 1.5px solid #eee !important;
+        background-color: #f8f9fa !important;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    .register-card input:focus {
+        background-color: #fff !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+        outline: none;
+    }
+    .btn-register {
+        background: linear-gradient(45deg, #0d6efd, #0043a8);
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: white;
+        transition: all 0.4s;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+    .btn-register:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.5);
+        color: white;
+    }
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 0 0;
+        color: #dc3545;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .divider {
+        height: 1px;
+        background: #eee;
+        margin: 25px 0;
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-card animate__animated animate__fadeIn">
+        <div class="text-center mb-5">
+            <div class="d-inline-block p-3 rounded-circle bg-primary bg-opacity-10 mb-3">
+                <i class="fas fa-user-plus fa-2x text-primary"></i>
+            </div>
+            <h2 class="fw-bold text-dark">Créer un compte</h2>
+            <p class="text-muted small">Rejoignez BossCar Location dès aujourd'hui</p>
+        </div>
+
+        <form method="POST" novalidate id="registerForm">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-uppercase" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+                    
+                    <div class="input-group">
+                        {{ field }}
+                    </div>
+
+                    {% if field.errors %}
+                        <div class="animate__animated animate__shakeX">
+                            <ul class="errorlist">
+                                {% for error in field.errors %}
+                                    <li><i class="fas fa-exclamation-triangle me-1"></i> {{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-register w-100 mt-2">
+                <i class="fas fa-paper-plane me-2"></i> S'inscrire maintenant
+            </button>
+        </form>
+
+        <div class="divider"></div>
+
+        <div class="text-center">
+            <p class="small text-muted mb-2">Vous avez déjà un compte ?</p>
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold">
+                Se connecter
+            </a>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<script>
+    // Injection automatique de la classe form-control pour le style Bootstrap
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.type !== 'checkbox' && input.type !== 'radio') {
+                input.classList.add('form-control');
+            }
+        });
+    });
+</script>
+
+{% endblock %}
