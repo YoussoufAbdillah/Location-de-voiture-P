@@ -5,7 +5,7 @@ Modified for Render deployment.
 
 from pathlib import Path
 import os
-import dj_database_url # Optionnel mais recommandé pour Render
+import dj_database_url 
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,7 +80,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static & Media Configuration
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # Dossier où Django va rassembler tous les fichiers statiques pour la prod
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
